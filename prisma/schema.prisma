@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Player {
+  id          String    @id @default(uuid()) @db.Uuid
+  displayName String?
+  createdAt   DateTime  @default(now())
+  lastSeenAt  DateTime  @updatedAt
+  
+  results RoundResult[]
+}
+
+model RoundResult {
+  id            String  @id @default(uuid()) @db.Uuid
+  roundId       Int
+  playerId      String  @db.Uuid
+  player        Player  @relation(fields: [playerId], references: [id])
+
+  wpm           Float  
+  accuracy      Float
+  correctChars  Int
+  totalChars    Int
+  finalText     String?
+  
+  createdAt     DateTime @default(now())
+
+  @@unique([roundId, playerId])
+  @@index([roundId])
+  @@index([playerId])
+}

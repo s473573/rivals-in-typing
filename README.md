@@ -9,7 +9,7 @@
 
 A tiny real-time typing duel (Typeracer-ish) with a newspaper-riddle vibe: warm paper texture, clean rules, mono stats.
 
-Go race each other live!
+Go race each other live! [https://rivals-in-typing.vercel.app/]
 
 ---
 

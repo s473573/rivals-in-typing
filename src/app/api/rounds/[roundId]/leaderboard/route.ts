@@ -7,9 +7,11 @@ function jsonError(status: number, message: string) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { roundId: string } }
+  { params }: { params: Promise<{ roundId: string }> }
 ): Promise<Response> {
-  const roundId = Number(params.roundId);
+  const rawId = (await params).roundId
+  const roundId = Number(rawId)
+
   if (!Number.isInteger(roundId) || roundId < 0) {
     return jsonError(400, "Bad Request: roundId must be a non-negative integer.");
   }

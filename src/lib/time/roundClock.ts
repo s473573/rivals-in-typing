@@ -6,7 +6,7 @@ export type RoundState = {
   progress: number  // 0..1
 }
 
-export const ROUND_MS = 30_000
+export const ROUND_MS = 15_000
 
 function assertRoundMs(roundMs: number): void {
   if (!Number.isFinite(roundMs) || roundMs <= 0) {

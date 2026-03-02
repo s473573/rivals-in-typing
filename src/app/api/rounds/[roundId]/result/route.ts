@@ -1,4 +1,5 @@
 import { upsertRoundResult } from "@/lib/db/queries/results";
+import { isPlayerIdValid } from "@/lib/db/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -25,9 +26,11 @@ function isNonNegativeInt(n: unknown): n is number {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { roundId: string } }
+  { params }: { params: Promise<{ roundId: string }> }
 ): Promise<Response> {
-  const roundId = Number(params.roundId);
+  const rawId = (await params).roundId
+  const roundId = Number(rawId)
+
   if (!Number.isInteger(roundId) || roundId < 0) {
     return jsonError(400, "Bad Request: roundId must be a non-negative integer.");
   }
@@ -48,10 +51,16 @@ export async function POST(
     totalChars,
     finalText,
   } = body as Partial<SubmitRoundResultInput>;
+  
+  console.log("result payload", { roundId, playerId, wpm, accuracy, correctChars, totalChars });
 
   // validate
   if (typeof playerId !== "string" || playerId.length === 0) {
     return jsonError(400, "Bad Request: playerId is required.");
+  }
+  
+  if (!isPlayerIdValid(playerId)) {
+    return jsonError(400, `Bad Request: ${playerId} is not a valid playerId.`)
   }
 
   if (!isFiniteNumber(wpm) || wpm < 0) {
@@ -82,7 +91,7 @@ export async function POST(
   if (finalText && finalText.length > 10_000) {
     return jsonError(413, "Payload Too Large: finalText is too long.");
   }
-
+  
   // persist
   const result = await upsertRoundResult({
     roundId,

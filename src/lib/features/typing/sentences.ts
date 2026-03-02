@@ -25,24 +25,17 @@ type Sentence = {
   id: string,
   text: string  
 }
-
-export function pickSentence(
-  roundId: number,
-  pool: readonly string[] = SENTENCE_POOL
-): Sentence {
-  const mix_id = () => {
-    return (roundId * 2654435761) % pool.length;
-  } // golden ratio hash
-
-  if (pool.length === 0)
-    throw Error("Sentence pool must not be empty.")
-  if (roundId < 0)
-    throw Error("Round ID must be a positive number.")
-  
-  const len = pool.length;
-  const idx = ((mix_id() % len) + len) % len
-  return {
-    id: `s_${idx}`,
-    text: pool[idx]
+export function pickSentence(seed: number, pool: readonly string[] = SENTENCE_POOL): Sentence {
+  if (pool.length === 0) throw new Error('Sentence pool must not be empty.');
+  if (!Number.isFinite(seed) || !Number.isInteger(seed) || seed < 0) {
+    throw new Error('Seed must be a non-negative integer.');
   }
+
+  const len = pool.length;
+
+  // safe from float precision issues
+  const mixed = (Math.imul(seed >>> 0, 2654435761) >>> 0);
+  const idx = mixed % len;
+
+  return { id: `s_${idx}`, text: pool[idx] };
 }
